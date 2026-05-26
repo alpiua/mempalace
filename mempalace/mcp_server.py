@@ -994,9 +994,9 @@ def tool_check_duplicate(content: str, threshold: float = 0.9):
             "is_duplicate": len(duplicates) > 0,
             "matches": duplicates,
         }
-    except Exception:
+    except Exception as e:
         logger.exception("check_duplicate failed")
-        return {"error": "Duplicate check failed"}
+        return {"error": f"Duplicate check failed: {e}"}
 
 
 def tool_get_aaak_spec():
@@ -1791,9 +1791,9 @@ def tool_diary_read(agent_name: str, last_n: int = 10, wing: str = ""):
             "total": len(results["ids"]),
             "showing": len(entries),
         }
-    except Exception:
+    except Exception as e:
         logger.exception("diary_read failed")
-        return {"error": "Failed to read diary entries"}
+        return {"error": f"Failed to read diary entries: {e}"}
 
 
 def tool_hook_settings(silent_save: bool = None, desktop_toast: bool = None):
@@ -2600,9 +2600,10 @@ def handle_request(request):
                             "message": f"Missing required {word} {quoted} for tool {tool_name}",
                         },
                     }
+            # Not a missing-arg TypeError from our handler — fall through to generic
             return _internal_tool_error(req_id, tool_name, e)
-        except Exception as exc:
-            return _internal_tool_error(req_id, tool_name, exc)
+        except Exception as e:
+            return _internal_tool_error(req_id, tool_name, e)
 
     # Notifications (missing id) must never get a response
     if req_id is None:
